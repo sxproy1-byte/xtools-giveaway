@@ -1,6 +1,6 @@
 const http = require('http'), fs = require('fs'), path = require('path'), crypto = require('crypto');
 const { KICK_CLIENT_ID, KICK_CLIENT_SECRET, BASE_URL, PORT = 3000 } = process.env;
-if (!CID || !SECRET || !BASE) { console.error('ناقص: KICK_CLIENT_ID / KICK_CLIENT_SECRET / BASE_URL'); process.exit(1); }
+if (!KICK_CLIENT_ID || !KICK_CLIENT_SECRET || !BASE_URL) { console.error('ناقص: KICK_CLIENT_ID / KICK_CLIENT_SECRET / BASE_URL'); process.exit(1); }
 
 const sessions = new Map(); // sid -> { userId, name }
 const pending = new Map();  // state -> code_verifier
@@ -11,10 +11,9 @@ const cookie = req => Object.fromEntries((req.headers.cookie || '').split(';').m
 const readRaw = req => new Promise(r => { const c = []; req.on('data', d => c.push(d)); req.on('end', () => r(Buffer.concat(c).toString())); });
 const send = (res, code, obj) => { res.writeHead(code, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(obj)); };
 
-// دالة لخدمة الملفات الثابتة (من مجلد public والمسار الرئيسي)
+// دالة لخدمة الملفات الثابتة من مجلد public
 const serveStatic = (req, res) => {
   let filePath = req.url === '/' ? '/giveaway.html' : req.url;
-  // إذا كان الطلب يبحث عن giveaway.html، نوجهه لمجلد public
   if (filePath === '/giveaway.html') {
     filePath = '/public/giveaway.html';
   }
@@ -32,4 +31,12 @@ const serveStatic = (req, res) => {
   });
 };
 
-// ... باقي كود السيرفر الخاص بك يتم ربطه هنا ليستخدم serveStatic في الـ HTTP server ...
+// إنشاء خادم الـ HTTP وربطه مع دالة الملفات الثابتة وباقي الـ API
+const server = http.createServer((req, res) => {
+  // يمكنك إضافة مسارات الـ API الخاصة بك هنا إذا وجدت، أو تركها لتخدم الملفات الثابتة
+  serveStatic(req, res);
+});
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
