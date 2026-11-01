@@ -1,0 +1,12 @@
+{
+  "name": "xtools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "xTools — slots, wheel, tournament, battle and Kick giveaway",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
