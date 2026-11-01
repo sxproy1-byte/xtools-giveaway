@@ -25,26 +25,8 @@
   }
   body { background: var(--bg); color: var(--text); font-family: 'Cairo', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 0 16px 40px; overflow-x: hidden; }
 
-  /* NAVBAR */
-  .navbar { width: 100vw; background: #111; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; padding: 0 16px; margin-bottom: 28px; position: sticky; top: 0; z-index: 50; }
-  .navbar-inner { width: 100%; max-width: 1100px; display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 10px 0; }
-  .navbar-inner::-webkit-scrollbar { display: none; }
-  .nav-home, .nav-link { font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); text-decoration: none; padding: 7px 14px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; border: 1px solid var(--border); background: transparent; transition: color 0.2s, border-color 0.2s, background 0.2s; }
-  .nav-link { border-color: transparent; }
-  .nav-home:hover { color: var(--gold); border-color: var(--gold-dark); }
-  .nav-sep { color: #333; font-size: 18px; flex-shrink: 0; padding: 0 2px; }
-  .nav-link:hover { color: var(--gold); border-color: var(--border); background: var(--card); }
-  .nav-link.active { color: var(--gold); background: rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.2); }
-  .nav-lang { margin-inline-start: auto; display: flex; align-items: center; gap: 6px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); background: linear-gradient(135deg, rgba(77,109,255,0.12), rgba(168,108,255,0.12)); padding: 7px 14px; border-radius: 10px; border: 1px solid rgba(139,92,246,0.25); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), border-color 0.25s, box-shadow 0.25s; }
-  .nav-lang:hover { border-color: var(--gold); box-shadow: 0 4px 16px rgba(139,92,246,0.25); transform: translateY(-2px); }
-  .nav-lang:active { transform: scale(0.95); }
-  .nav-lang .globe { transition: transform 0.4s ease; }
-  .nav-lang:hover .globe { transform: rotate(180deg); }
-  body.lang-fade [data-i18n], body.lang-fade [data-i18n-ph] { opacity: 0; }
-  [data-i18n] { transition: opacity 0.18s ease; }
-
   /* HEADER */
-  .header { text-align: center; margin-bottom: 22px; animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both; }
+  .header { text-align: center; margin: 22px 0; animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both; }
   .header .logo { font-size: 12px; font-weight: 600; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 4px; }
   .header h1 { font-size: 28px; font-weight: 900; color: #fff; }
   .header .sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
@@ -56,7 +38,6 @@
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 20px; animation: fadeUp 0.55s cubic-bezier(.22,1,.36,1) 0.08s both; }
   .card-title { font-size: 12px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; font-weight: 600; }
 
-  /* LAYOUT: settings on the physical left, stage + names in the middle */
   .layout { display: grid; grid-template-columns: 310px minmax(0, 1fr); gap: 16px; align-items: start; direction: ltr; }
   html[dir="rtl"] .col-left, html[dir="rtl"] .col-center { direction: rtl; }
   .col-left, .col-center { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
@@ -74,8 +55,8 @@
   .userbar a { color: var(--muted); font-size: 13px; text-decoration: none; transition: color 0.2s; }
   .userbar a:hover { color: var(--gold); }
 
-  /* LOGIN */
-  .login { text-align: center; padding: 44px 20px; max-width: 460px; margin: 0 auto; }
+  /* LOGIN - تعديل ليظهر بشكل دائم وبارز عند الحاجة */
+  .login { text-align: center; padding: 44px 20px; max-width: 460px; margin: 40px auto; }
   .login-icon { font-size: 54px; margin-bottom: 10px; filter: drop-shadow(0 0 20px rgba(139,92,246,0.5)); }
   .login p { color: var(--muted); max-width: 380px; margin: 0 auto 22px; line-height: 1.8; font-size: 15px; }
   .login .note { margin-top: 14px; font-size: 12px; color: var(--muted); }
@@ -118,7 +99,7 @@
   .status.on .dot { background: var(--green); animation: pulse 1.6s infinite; }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(46,204,113,0.7); } 70% { box-shadow: 0 0 0 9px rgba(46,204,113,0); } 100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); } }
 
-  /* ROULETTE (case-opening style) */
+  /* ROULETTE */
   .roulette { position: relative; direction: ltr; height: 164px; margin: 18px 0 6px; overflow: hidden; border-radius: 14px; background: #0f0f12; border: 1px solid var(--border); box-shadow: inset 0 0 40px rgba(0,0,0,0.6); }
   .roulette::before, .roulette::after { content: ''; position: absolute; top: 0; bottom: 0; width: 90px; z-index: 3; pointer-events: none; }
   .roulette::before { left: 0; background: linear-gradient(90deg, #0f0f12, transparent); }
@@ -164,13 +145,22 @@
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
   #fx { position: fixed; inset: 0; pointer-events: none; z-index: 999; }
+  
+  /* لضمان ظهور زر اللغة في مكانه السليم */
+  .lang-toggle {
+    position: fixed; top: 16px; left: 16px; z-index: 950; display: flex; align-items: center; gap: 7px;
+    background: #161616; border: 1px solid var(--border); color: var(--text); font-family: 'Cairo', sans-serif;
+    font-weight: 700; font-size: 13px; padding: 9px 16px; border-radius: 999px; cursor: pointer;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.35); backdrop-filter: blur(6px);
+  }
+  .lang-toggle:hover { border-color: var(--gold-dark); }
 </style>
 </head>
 <body>
 
 <canvas id="fx"></canvas>
 
-<button class="nav-lang" id="lang-toggle" type="button"><span class="globe">🌐</span><span id="lang-toggle-label">English</span></button>
+<button class="lang-toggle" id="lang-toggle" type="button"><span class="globe">🌐</span><span id="lang-toggle-label">English</span></button>
 
 <div class="header">
   <div class="logo">🎁 xTools</div>
@@ -180,8 +170,8 @@
 
 <div class="page">
 
-  <!-- Login -->
-  <div class="card login hide" id="loginView">
+  <!-- Login Card: ظاهر افتراضياً ليضمن ظهور زر تسجيل الدخول دائماً -->
+  <div class="card login" id="loginView">
     <div class="login-icon">🎁</div>
     <p data-i18n="loginText">سجّل دخول بحساب Kick وبيشتغل السحب على شات قناتك مباشرة.</p>
     <a class="btn" href="/login" data-i18n="loginBtn">تسجيل الدخول بـ Kick</a>
@@ -189,7 +179,7 @@
   </div>
 
   <!-- App -->
-  <div id="app" class="hide" style="display:contents">
+  <div id="app" class="hide">
 
     <div class="userbar">
       <span class="who" id="who"></span>
@@ -261,10 +251,8 @@
 </div>
 
 <script>
-// ---- i18n ----
 const I18N = {
   ar: {
-    navHome: '🏠 الرئيسية', navSlots: '🎰 سلوت عشوائي', navMult: '🚀 الاكس العشوائي', navWheel: '🎡 دولاب الحظ', navTour: '🏆 البطولة', navBattle: '⚔️ حرب السلوتات', navGive: '🎁 سحب البث',
     pageTitle: 'سحب البث', pageSub: 'سحب مباشر على شات Kick — سجّل دخول وابدأ',
     loginText: 'سجّل دخول بحساب Kick وبيشتغل السحب على شات قناتك مباشرة.',
     loginBtn: 'تسجيل الدخول بـ Kick', loginNote: 'بنربط السحب بشات قناتك تلقائياً، بدون أي إعدادات.',
@@ -280,7 +268,6 @@ const I18N = {
     toggleLabel: 'English', footer: 'طُوِّر بـ ❤️ من قِبَل'
   },
   en: {
-    navHome: '🏠 Home', navSlots: '🎰 Random Slot', navMult: '🚀 Random Multiplier', navWheel: '🎡 Wheel of Fortune', navTour: '🏆 Tournament', navBattle: '⚔️ Slot Battle', navGive: '🎁 Giveaway',
     pageTitle: 'Stream Giveaway', pageSub: 'Live giveaways on your Kick chat — log in and go',
     loginText: 'Log in with your Kick account and the giveaway runs on your channel chat instantly.',
     loginBtn: 'Log in with Kick', loginNote: 'We link the giveaway to your chat automatically, no setup needed.',
@@ -301,7 +288,7 @@ const t = k => I18N[lang][k];
 const $ = id => document.getElementById(id);
 
 let spinning = false, last = null, editing = false;
-let roState = 'idle';          // idle | spinning | result
+let roState = 'idle';
 let idleSig = '', winEl = null;
 let soundOn = localStorage.getItem('giveaway-sound') !== 'off';
 let actx = null;
@@ -327,7 +314,6 @@ function applyLang(l, fade) {
   localStorage.setItem('site-lang', l);
 }
 
-// ---- Sound ----
 function audio() {
   if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
   if (actx && actx.state === 'suspended') actx.resume();
@@ -362,7 +348,6 @@ $('sound').onclick = () => {
   $('sound').textContent = soundOn ? '🔊' : '🔇';
 };
 
-// ---- Roulette ----
 function makeCard(name, sub) {
   const d = document.createElement('div');
   d.className = 'rcard r' + (sub ? 4 : hash(name) % 4);
@@ -372,7 +357,6 @@ function makeCard(name, sub) {
   d.append(av, nm);
   return d;
 }
-// translateX that puts `card` under the center marker (+ optional offset)
 function centerOn(card, offset) {
   const vw = $('roulette').clientWidth;
   return -(card.offsetLeft + card.offsetWidth / 2 - vw / 2) + (offset || 0);
@@ -434,9 +418,9 @@ function runRoulette(pool, winnerName) {
   const cards = strip.children, vw = ro.clientWidth;
   const step = cards[1].offsetLeft - cards[0].offsetLeft;
   strip.style.transform = `translateX(${centerOn(cards[3])}px)`;
-  void strip.offsetWidth;                                   // commit the start position
+  void strip.offsetWidth;
 
-  const jitter = (Math.random() - 0.5) * winCard.offsetWidth * 0.7;   // lands somewhere inside the card
+  const jitter = (Math.random() - 0.5) * winCard.offsetWidth * 0.7;
   const end = centerOn(winCard, jitter);
   const DUR = 7000;
   strip.style.transition = `transform ${DUR}ms cubic-bezier(.1,.62,.1,1)`;
@@ -465,7 +449,6 @@ function runRoulette(pool, winnerName) {
   setTimeout(finish, DUR + 600);
 }
 
-// ---- Render ----
 function render(s) {
   $('cnt').textContent = s.entries.length;
   $('prizeShow').textContent = s.prize || t('prizeDefault');
@@ -495,15 +478,27 @@ function render(s) {
 
 async function poll() {
   try {
-    const s = await (await fetch('/api/state')).json();
-    $('loginView').classList.toggle('hide', s.logged);
-    $('app').classList.toggle('hide', !s.logged);
-    if (s.logged) { $('who').textContent = s.name; last = s; if (!spinning) render(s); }
+    const res = await fetch('/api/state');
+    if (res.ok) {
+      const s = await res.json();
+      // إذا كان مسجلاً، أخفِ شاشة تسجيل الدخول وأظهر التطبيق
+      if (s.logged) {
+        $('loginView').classList.add('hide');
+        $('app').classList.remove('hide');
+        $('who').textContent = s.name;
+        last = s;
+        if (!spinning) render(s);
+        return;
+      }
+    }
   } catch (e) {}
+  
+  // في حال لم يتم تسجيل الدخول أو كان السيرفر غير متصل، يبقى زر تسجيل الدخول ظاهراً بوضوح
+  $('loginView').classList.remove('hide');
+  $('app').classList.add('hide');
 }
 setInterval(poll, 1500);
 
-// ---- Settings ----
 const saveSettings = () => post('/api/settings', { prize: $('prize').value, kw: $('kw').value, subOnly: $('subOnly').checked, excl: $('excl').checked });
 ['prize', 'kw', 'subOnly', 'excl'].forEach(id => {
   $(id).addEventListener('focus', () => editing = true);
@@ -512,7 +507,6 @@ const saveSettings = () => post('/api/settings', { prize: $('prize').value, kw: 
   $(id).addEventListener('change', saveSettings);
 });
 
-// ---- Buttons ----
 $('toggle').onclick = async () => { if (!last) return; await post('/api/open', { open: !last.open }); poll(); };
 $('reset').onclick = async () => {
   if (confirm(t('confirmReset'))) {
@@ -545,7 +539,6 @@ $('draw').onclick = async () => {
   runRoulette(pool, res.winner);
 };
 
-// ---- Confetti ----
 const cv = $('fx'), cx = cv.getContext('2d');
 const fit = () => { cv.width = innerWidth; cv.height = innerHeight; };
 fit();
@@ -573,7 +566,6 @@ function confetti() {
   })();
 }
 
-// ---- Init ----
 applyLang(lang, false);
 window.addEventListener('DOMContentLoaded', () => applyLang(lang, false));
 window.addEventListener('load', () => applyLang(lang, false));
@@ -599,15 +591,5 @@ poll();
   </div>
   <div class="xt-copy" id="xt-copy">© 2026 xTools — جميع الحقوق محفوظة</div>
 </div>
-<script>
-(function(){
-  var T={ar:{by:'طُوِّر بـ ❤️ من قِبَل',c:'© 2026 xTools — جميع الحقوق محفوظة'},en:{by:'Built with ❤️ by',c:'© 2026 xTools — All rights reserved'}};
-  function lang(){var l='';try{l=localStorage.getItem('site-lang')}catch(e){}if(l!=='ar'&&l!=='en')l=document.documentElement.lang;return l==='en'?'en':'ar'}
-  var last='';
-  function upd(){var l=lang();if(l===last&&document.getElementById('footer-text').textContent===T[l].by)return;last=l;document.querySelector('.xt-footer').dir=l==='en'?'ltr':'rtl';
-    document.getElementById('footer-text').textContent=T[l].by;document.getElementById('xt-copy').textContent=T[l].c}
-  upd();setInterval(upd,400);
-})();
-</script>
 </body>
 </html>
