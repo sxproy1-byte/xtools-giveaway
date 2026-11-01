@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سحب البث - xTools</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234d8dff'/%3E%3Cstop offset='50%25' stop-color='%238b6cff'/%3E%3Cstop offset='100%25' stop-color='%236d4fd1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0a'/%3E%3Crect x='2' y='2' width='60' height='60' rx='12' fill='none' stroke='url(%23g)' stroke-width='2'/%3E%3Ctext x='32' y='44' font-family='Arial, Helvetica, sans-serif' font-weight='900' font-size='36' text-anchor='middle' fill='url(%23g)'%3EX%3C/text%3E%3C/svg%3E">
+<script>
+  (function(){
+    var l = localStorage.getItem('site-lang') || 'ar';
+    document.documentElement.lang = l;
+    document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
+  })();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #8b6cff; --gold-dark: #6d4fd1;
+    --bg: #0d0d0d; --card: #161616; --card2: #1e1e1e;
+    --border: #2a2a2a; --text: #f0f0f0; --muted: #888;
+    --green: #2ecc71; --red: #ff5252;
+    --grad: linear-gradient(135deg, #4d6dff 0%, #a86cff 55%, #c56cf0 100%);
+    --cw: 150px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Cairo', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 0 16px 40px; overflow-x: hidden; }
+
+  /* NAVBAR */
+  .navbar { width: 100vw; background: #111; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; padding: 0 16px; margin-bottom: 28px; position: sticky; top: 0; z-index: 50; }
+  .navbar-inner { width: 100%; max-width: 1100px; display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 10px 0; }
+  .navbar-inner::-webkit-scrollbar { display: none; }
+  .nav-home, .nav-link { font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); text-decoration: none; padding: 7px 14px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; border: 1px solid var(--border); background: transparent; transition: color 0.2s, border-color 0.2s, background 0.2s; }
+  .nav-link { border-color: transparent; }
+  .nav-home:hover { color: var(--gold); border-color: var(--gold-dark); }
+  .nav-sep { color: #333; font-size: 18px; flex-shrink: 0; padding: 0 2px; }
+  .nav-link:hover { color: var(--gold); border-color: var(--border); background: var(--card); }
+  .nav-link.active { color: var(--gold); background: rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.2); }
+  .nav-lang { margin-inline-start: auto; display: flex; align-items: center; gap: 6px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); background: linear-gradient(135deg, rgba(77,109,255,0.12), rgba(168,108,255,0.12)); padding: 7px 14px; border-radius: 10px; border: 1px solid rgba(139,92,246,0.25); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), border-color 0.25s, box-shadow 0.25s; }
+  .nav-lang:hover { border-color: var(--gold); box-shadow: 0 4px 16px rgba(139,92,246,0.25); transform: translateY(-2px); }
+  .nav-lang:active { transform: scale(0.95); }
+  .nav-lang .globe { transition: transform 0.4s ease; }
+  .nav-lang:hover .globe { transform: rotate(180deg); }
+  body.lang-fade [data-i18n], body.lang-fade [data-i18n-ph] { opacity: 0; }
+  [data-i18n] { transition: opacity 0.18s ease; }
+
+  /* HEADER */
+  .header { text-align: center; margin-bottom: 22px; animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both; }
+  .header .logo { font-size: 12px; font-weight: 600; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 4px; }
+  .header h1 { font-size: 28px; font-weight: 900; color: #fff; }
+  .header .sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  .page { width: 100%; max-width: 1100px; }
+  .hide { display: none !important; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 20px; animation: fadeUp 0.55s cubic-bezier(.22,1,.36,1) 0.08s both; }
+  .card-title { font-size: 12px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; font-weight: 600; }
+
+  /* LAYOUT: settings on the physical left, stage + names in the middle */
+  .layout { display: grid; grid-template-columns: 310px minmax(0, 1fr); gap: 16px; align-items: start; direction: ltr; }
+  html[dir="rtl"] .col-left, html[dir="rtl"] .col-center { direction: rtl; }
+  .col-left, .col-center { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  @media (max-width: 900px) {
+    :root { --cw: 128px; }
+    .layout { display: flex; flex-direction: column; }
+    html[dir="rtl"] .layout { direction: rtl; }
+    .col-left, .col-center { display: contents; }
+    #stageCard { order: 1; } #partCard { order: 2; } #setCard { order: 3; } #winCard { order: 4; }
+  }
+
+  /* USER BAR */
+  .userbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .who { padding: 6px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--border); font-weight: 700; font-size: 14px; }
+  .userbar a { color: var(--muted); font-size: 13px; text-decoration: none; transition: color 0.2s; }
+  .userbar a:hover { color: var(--gold); }
+
+  /* LOGIN */
+  .login { text-align: center; padding: 44px 20px; max-width: 460px; margin: 0 auto; }
+  .login-icon { font-size: 54px; margin-bottom: 10px; filter: drop-shadow(0 0 20px rgba(139,92,246,0.5)); }
+  .login p { color: var(--muted); max-width: 380px; margin: 0 auto 22px; line-height: 1.8; font-size: 15px; }
+  .login .note { margin-top: 14px; font-size: 12px; color: var(--muted); }
+
+  /* FORM */
+  .lbl { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 6px; font-weight: 600; }
+  .lbl:first-of-type { margin-top: 0; }
+  .inp { width: 100%; padding: 12px 14px; font-family: 'Cairo', sans-serif; font-size: 15px; background: var(--card2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); outline: none; transition: border-color 0.2s; }
+  .inp:focus { border-color: var(--gold-dark); }
+  .inp::placeholder { color: #666; }
+  .row { display: flex; gap: 8px; }
+  .row .inp { flex: 1; min-width: 0; }
+
+  .chk { display: flex; align-items: center; gap: 12px; margin-top: 14px; font-size: 14px; font-weight: 600; cursor: pointer; user-select: none; }
+  .chk input { appearance: none; -webkit-appearance: none; width: 44px; height: 25px; border-radius: 999px; background: #2a2a2a; border: 1px solid var(--border); position: relative; cursor: pointer; flex: none; transition: background 0.25s, border-color 0.25s, box-shadow 0.25s; }
+  .chk input::after { content: ''; position: absolute; top: 2px; inset-inline-start: 2px; width: 19px; height: 19px; border-radius: 50%; background: #bbb; transition: inset-inline-start 0.25s, background 0.25s; }
+  .chk input:checked { background: var(--grad); border-color: transparent; box-shadow: 0 0 14px rgba(139,92,246,0.45); }
+  .chk input:checked::after { inset-inline-start: 21px; background: #fff; }
+
+  /* BUTTONS */
+  .btn { padding: 12px 20px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; color: #fff; background: var(--grad); box-shadow: 0 4px 20px rgba(139,92,246,0.3); text-decoration: none; display: inline-block; transition: transform 0.25s cubic-bezier(.22,1,.36,1), box-shadow 0.25s, opacity 0.2s; }
+  .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(139,92,246,0.5); }
+  .btn:active:not(:disabled) { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.sec { background: var(--card2); border: 1px solid var(--border); color: var(--text); box-shadow: none; }
+  .btn.sec:hover:not(:disabled) { border-color: var(--gold-dark); color: var(--gold); box-shadow: none; }
+  .btns { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+  #draw { padding: 14px 34px; font-size: 17px; }
+
+  /* STAGE */
+  .stage { text-align: center; padding: 22px 18px 22px; position: relative; overflow: hidden; border-color: rgba(139,92,246,0.25); background: linear-gradient(180deg, rgba(139,92,246,0.12), var(--card) 65%); }
+  .stage-top { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+  .prize { display: inline-flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 999px; background: rgba(139,92,246,0.14); border: 1px solid rgba(139,92,246,0.35); color: var(--gold); font-weight: 700; font-size: 14px; }
+  .prize::before { content: '🎁'; }
+  .count { font-size: 34px; font-weight: 900; line-height: 1.1; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .count small { font-size: 14px; color: var(--muted); -webkit-text-fill-color: var(--muted); font-weight: 600; }
+  .status { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--muted); font-weight: 600; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #555; }
+  .status.on { color: #bff0d1; }
+  .status.on .dot { background: var(--green); animation: pulse 1.6s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(46,204,113,0.7); } 70% { box-shadow: 0 0 0 9px rgba(46,204,113,0); } 100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); } }
+
+  /* ROULETTE (case-opening style) */
+  .roulette { position: relative; direction: ltr; height: 164px; margin: 18px 0 6px; overflow: hidden; border-radius: 14px; background: #0f0f12; border: 1px solid var(--border); box-shadow: inset 0 0 40px rgba(0,0,0,0.6); }
+  .roulette::before, .roulette::after { content: ''; position: absolute; top: 0; bottom: 0; width: 90px; z-index: 3; pointer-events: none; }
+  .roulette::before { left: 0; background: linear-gradient(90deg, #0f0f12, transparent); }
+  .roulette::after { right: 0; background: linear-gradient(270deg, #0f0f12, transparent); }
+  .strip { position: absolute; top: 14px; left: 0; display: flex; gap: 8px; will-change: transform; }
+  .marker { position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; margin-left: -1.5px; z-index: 4; background: linear-gradient(180deg, #fff, #c56cf0 50%, #fff); box-shadow: 0 0 14px 2px rgba(168,108,255,0.8); pointer-events: none; }
+  .marker::before, .marker::after { content: ''; position: absolute; left: 50%; margin-left: -8px; border-left: 8px solid transparent; border-right: 8px solid transparent; }
+  .marker::before { top: 0; border-top: 10px solid #fff; }
+  .marker::after { bottom: 0; border-bottom: 10px solid #fff; }
+  .ro-empty { position: absolute; inset: 0; display: grid; place-items: center; color: #666; font-size: 14px; z-index: 5; pointer-events: none; direction: inherit; }
+
+  .rcard { --rc: #4b69ff; --rg: rgba(75,105,255,0.22); flex: none; width: var(--cw); height: 136px; border-radius: 10px; background: radial-gradient(120% 90% at 50% 0%, var(--rg), transparent 70%), var(--card2); border: 1px solid #2c2c33; border-bottom: 4px solid var(--rc); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 8px; transition: transform 0.45s cubic-bezier(.2,1.4,.4,1), box-shadow 0.45s, opacity 0.45s, filter 0.45s; }
+  .rcard.r0 { --rc: #4b69ff; --rg: rgba(75,105,255,0.22); }
+  .rcard.r1 { --rc: #8847ff; --rg: rgba(136,71,255,0.24); }
+  .rcard.r2 { --rc: #d32ce6; --rg: rgba(211,44,230,0.22); }
+  .rcard.r3 { --rc: #eb4b4b; --rg: rgba(235,75,75,0.2); }
+  .rcard.r4 { --rc: #e4ae39; --rg: rgba(228,174,57,0.24); }
+  .av { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: 24px; color: #fff; background: linear-gradient(135deg, var(--rc), #0d0d0d 170%); box-shadow: 0 0 18px var(--rg); }
+  .nm { max-width: 100%; font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rcard.win { transform: scale(1.07); box-shadow: 0 0 0 2px #fff, 0 0 34px var(--rc); position: relative; z-index: 2; }
+  .roulette.done .rcard:not(.win) { opacity: 0.28; filter: grayscale(0.7); }
+
+  /* WINNER REVEAL */
+  .reveal { min-height: 104px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; margin-top: 10px; display: none; }
+  .reveal.show { display: flex; }
+  .reveal .lab { font-size: 12px; color: var(--gold); letter-spacing: 3px; font-weight: 700; }
+  .reveal.nolabel .lab { display: none; }
+  .reveal .name { font-size: clamp(28px, 5vw, 50px); font-weight: 900; word-break: break-all; line-height: 1.2; }
+  .reveal.show .name { background: linear-gradient(135deg, #fff, #c9b8ff 50%, #c56cf0); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 20px rgba(139,92,246,0.55)); animation: pop 0.7s cubic-bezier(.2,1.4,.4,1); }
+  .reveal .pz { font-size: 14px; color: var(--muted); font-weight: 600; }
+  @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+  /* LISTS */
+  .list { display: flex; flex-wrap: wrap; gap: 8px; max-height: 300px; overflow: auto; justify-content: center; }
+  .chip { background: var(--card2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 14px; font-size: 13px; font-weight: 600; }
+  .chip.sub { border-color: var(--gold); background: rgba(139,92,246,0.12); }
+  .chip.won { opacity: 0.4; text-decoration: line-through; }
+  .empty { color: #666; font-size: 14px; }
+  ol { list-style: none; counter-reset: w; display: grid; gap: 8px; max-height: 260px; overflow: auto; }
+  ol li { counter-increment: w; display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 12px; background: var(--card2); border: 1px solid var(--border); font-weight: 600; font-size: 14px; }
+  ol li::before { content: counter(w); flex: none; width: 26px; height: 26px; border-radius: 8px; background: var(--grad); display: grid; place-items: center; font-size: 13px; font-weight: 800; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  #fx { position: fixed; inset: 0; pointer-events: none; z-index: 999; }
+</style>
+</head>
+<body>
+
+<canvas id="fx"></canvas>
+
+<button class="nav-lang" id="lang-toggle" type="button"><span class="globe">🌐</span><span id="lang-toggle-label">English</span></button>
+
+<div class="header">
+  <div class="logo">🎁 xTools</div>
+  <h1 data-i18n="pageTitle">سحب البث</h1>
+  <div class="sub" data-i18n="pageSub">سحب مباشر على شات Kick — سجّل دخول وابدأ</div>
+</div>
+
+<div class="page">
+
+  <!-- Login -->
+  <div class="card login hide" id="loginView">
+    <div class="login-icon">🎁</div>
+    <p data-i18n="loginText">سجّل دخول بحساب Kick وبيشتغل السحب على شات قناتك مباشرة.</p>
+    <a class="btn" href="/login" data-i18n="loginBtn">تسجيل الدخول بـ Kick</a>
+    <div class="note" data-i18n="loginNote">بنربط السحب بشات قناتك تلقائياً، بدون أي إعدادات.</div>
+  </div>
+
+  <!-- App -->
+  <div id="app" class="hide" style="display:contents">
+
+    <div class="userbar">
+      <span class="who" id="who"></span>
+      <a href="/logout" data-i18n="logout">خروج</a>
+    </div>
+
+    <div class="layout">
+
+      <!-- LEFT: settings + winners -->
+      <div class="col-left">
+        <div class="card" id="setCard">
+          <div class="card-title" data-i18n="settingsTitle">⚙️ إعدادات السحب</div>
+          <label class="lbl" for="prize" data-i18n="prizeLabel">الجائزة</label>
+          <input class="inp" type="text" id="prize" maxlength="80" data-i18n-ph="prizePh" placeholder="مثلاً: اشتراك Nitro">
+          <label class="lbl" for="kw" data-i18n="kwLabel">كلمة المشاركة</label>
+          <input class="inp" type="text" id="kw" dir="ltr" maxlength="30">
+          <label class="chk"><input type="checkbox" id="subOnly"><span data-i18n="subOnly">للمشتركين (Subs) فقط</span></label>
+          <label class="chk"><input type="checkbox" id="excl"><span data-i18n="excl">استبعاد الفائزين السابقين</span></label>
+          <label class="lbl" for="manual" data-i18n="manualLabel">إضافة مشارك يدوياً (للتجربة)</label>
+          <div class="row">
+            <input class="inp" type="text" id="manual" dir="ltr" maxlength="30" data-i18n-ph="manualPh" placeholder="username">
+            <button class="btn sec" id="addManual" type="button" data-i18n="addBtn">إضافة</button>
+          </div>
+        </div>
+
+        <div class="card" id="winCard">
+          <div class="card-title" data-i18n="winnersTitle">🏆 الفائزون</div>
+          <ol id="wins"></ol>
+        </div>
+      </div>
+
+      <!-- CENTER: roulette + names -->
+      <div class="col-center">
+        <div class="card stage" id="stageCard">
+          <div class="stage-top">
+            <div class="prize" id="prizeShow">الجائزة</div>
+            <div class="count"><span id="cnt">0</span> <small data-i18n="unit">مشارك</small></div>
+          </div>
+          <div class="status" id="entryStatus"><span class="dot"></span><span id="entryTxt"></span></div>
+
+          <div class="roulette" id="roulette">
+            <div class="strip" id="strip"></div>
+            <div class="marker"></div>
+            <div class="ro-empty" id="roEmpty" data-i18n="emptyP">لا يوجد مشاركون بعد</div>
+          </div>
+
+          <div class="reveal" id="reveal">
+            <div class="lab" data-i18n="winnerLabel">🏆 الفائز</div>
+            <div class="name" id="revName">—</div>
+            <div class="pz" id="revPrize"></div>
+          </div>
+
+          <div class="btns">
+            <button class="btn sec" id="toggle" type="button">فتح المشاركة</button>
+            <button class="btn" id="draw" type="button" data-i18n="draw">🎲 سحب فائز</button>
+            <button class="btn sec" id="reset" type="button" data-i18n="reset">تصفير</button>
+            <button class="btn sec" id="sound" type="button">🔊</button>
+          </div>
+        </div>
+
+        <div class="card" id="partCard">
+          <div class="card-title" data-i18n="participantsTitle">👥 المشاركون</div>
+          <div class="list" id="list"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- i18n ----
+const I18N = {
+  ar: {
+    navHome: '🏠 الرئيسية', navSlots: '🎰 سلوت عشوائي', navMult: '🚀 الاكس العشوائي', navWheel: '🎡 دولاب الحظ', navTour: '🏆 البطولة', navBattle: '⚔️ حرب السلوتات', navGive: '🎁 سحب البث',
+    pageTitle: 'سحب البث', pageSub: 'سحب مباشر على شات Kick — سجّل دخول وابدأ',
+    loginText: 'سجّل دخول بحساب Kick وبيشتغل السحب على شات قناتك مباشرة.',
+    loginBtn: 'تسجيل الدخول بـ Kick', loginNote: 'بنربط السحب بشات قناتك تلقائياً، بدون أي إعدادات.',
+    logout: 'خروج', prizeDefault: 'الجائزة', unit: 'مشارك',
+    open: 'فتح المشاركة', close: 'إغلاق المشاركة', draw: '🎲 سحب فائز', reset: 'تصفير',
+    statusOpen: kw => `المشاركة مفتوحة — اكتب ${kw} بالشات`, statusClosed: 'المشاركة مغلقة',
+    settingsTitle: '⚙️ إعدادات السحب', prizeLabel: 'الجائزة', prizePh: 'مثلاً: اشتراك Nitro', kwLabel: 'كلمة المشاركة',
+    subOnly: 'للمشتركين (Subs) فقط', excl: 'استبعاد الفائزين السابقين',
+    manualLabel: 'إضافة مشارك يدوياً (للتجربة)', manualPh: 'username', addBtn: 'إضافة',
+    participantsTitle: '👥 المشاركون', winnersTitle: '🏆 الفائزون', winnerLabel: '🏆 الفائز',
+    emptyP: 'لا يوجد مشاركون بعد', emptyW: 'لا يوجد فائزون بعد',
+    noPool: 'ما في مشاركين متاحين', confirmReset: 'تصفير المشاركين والفائزين؟',
+    toggleLabel: 'English', footer: 'طُوِّر بـ ❤️ من قِبَل'
+  },
+  en: {
+    navHome: '🏠 Home', navSlots: '🎰 Random Slot', navMult: '🚀 Random Multiplier', navWheel: '🎡 Wheel of Fortune', navTour: '🏆 Tournament', navBattle: '⚔️ Slot Battle', navGive: '🎁 Giveaway',
+    pageTitle: 'Stream Giveaway', pageSub: 'Live giveaways on your Kick chat — log in and go',
+    loginText: 'Log in with your Kick account and the giveaway runs on your channel chat instantly.',
+    loginBtn: 'Log in with Kick', loginNote: 'We link the giveaway to your chat automatically, no setup needed.',
+    logout: 'Log out', prizeDefault: 'Prize', unit: 'entries',
+    open: 'Open Entries', close: 'Close Entries', draw: '🎲 Draw Winner', reset: 'Reset',
+    statusOpen: kw => `Entries open — type ${kw} in chat`, statusClosed: 'Entries closed',
+    settingsTitle: '⚙️ Giveaway Settings', prizeLabel: 'Prize', prizePh: 'e.g. Nitro subscription', kwLabel: 'Entry keyword',
+    subOnly: 'Subscribers only', excl: 'Exclude previous winners',
+    manualLabel: 'Add an entry manually (for testing)', manualPh: 'username', addBtn: 'Add',
+    participantsTitle: '👥 Entries', winnersTitle: '🏆 Winners', winnerLabel: '🏆 Winner',
+    emptyP: 'No entries yet', emptyW: 'No winners yet',
+    noPool: 'No eligible entries', confirmReset: 'Reset entries and winners?',
+    toggleLabel: 'عربي', footer: 'Built with ❤️ by'
+  }
+};
+let lang = localStorage.getItem('site-lang') || 'ar';
+const t = k => I18N[lang][k];
+const $ = id => document.getElementById(id);
+
+let spinning = false, last = null, editing = false;
+let roState = 'idle';          // idle | spinning | result
+let idleSig = '', winEl = null;
+let soundOn = localStorage.getItem('giveaway-sound') !== 'off';
+let actx = null;
+
+const post = (u, b) => fetch(u, { method: 'POST', body: JSON.stringify(b || {}) }).then(r => r.json());
+const rnd = n => { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; };
+const hash = s => { let h = 0; for (const c of s) h = (h * 31 + c.codePointAt(0)) >>> 0; return h; };
+
+function applyLang(l, fade) {
+  lang = l;
+  document.documentElement.lang = l;
+  document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
+  const run = () => {
+    document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (I18N[l][k]) el.textContent = I18N[l][k]; });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => { const k = el.getAttribute('data-i18n-ph'); if (I18N[l][k]) el.placeholder = I18N[l][k]; });
+    $('lang-toggle-label').textContent = I18N[l].toggleLabel;
+    var ft = document.getElementById('footer-text'); if (ft) ft.textContent = I18N[l].footer;
+    document.title = I18N[l].pageTitle + ' - xTools';
+    if (last && !spinning) render(last);
+    document.body.classList.remove('lang-fade');
+  };
+  if (fade) { document.body.classList.add('lang-fade'); setTimeout(run, 160); } else run();
+  localStorage.setItem('site-lang', l);
+}
+
+// ---- Sound ----
+function audio() {
+  if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+  if (actx && actx.state === 'suspended') actx.resume();
+  return actx;
+}
+function playTick() {
+  if (!soundOn || !actx) return;
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.connect(g); g.connect(actx.destination);
+  o.type = 'triangle'; o.frequency.value = 520 + Math.random() * 80;
+  g.gain.setValueAtTime(0.09, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.045);
+  o.start(); o.stop(actx.currentTime + 0.05);
+}
+function playWin() {
+  if (!soundOn || !actx) return;
+  [523, 659, 784, 1047].forEach((f, i) => {
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.connect(g); g.connect(actx.destination); o.type = 'sine';
+    const s = actx.currentTime + i * 0.12;
+    o.frequency.value = f;
+    g.gain.setValueAtTime(0, s);
+    g.gain.linearRampToValueAtTime(0.25, s + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.001, s + 0.35);
+    o.start(s); o.stop(s + 0.35);
+  });
+}
+$('sound').textContent = soundOn ? '🔊' : '🔇';
+$('sound').onclick = () => {
+  soundOn = !soundOn;
+  localStorage.setItem('giveaway-sound', soundOn ? 'on' : 'off');
+  $('sound').textContent = soundOn ? '🔊' : '🔇';
+};
+
+// ---- Roulette ----
+function makeCard(name, sub) {
+  const d = document.createElement('div');
+  d.className = 'rcard r' + (sub ? 4 : hash(name) % 4);
+  const av = document.createElement('div'); av.className = 'av';
+  av.textContent = (Array.from(name)[0] || '?').toUpperCase();
+  const nm = document.createElement('div'); nm.className = 'nm'; nm.dir = 'auto'; nm.textContent = name;
+  d.append(av, nm);
+  return d;
+}
+// translateX that puts `card` under the center marker (+ optional offset)
+function centerOn(card, offset) {
+  const vw = $('roulette').clientWidth;
+  return -(card.offsetLeft + card.offsetWidth / 2 - vw / 2) + (offset || 0);
+}
+
+function renderIdle(entries) {
+  const strip = $('strip');
+  const sig = entries.map(e => e.key + (e.sub ? '1' : '0')).join('|') + '#' + $('roulette').clientWidth;
+  if (sig === idleSig && strip.childElementCount) return;
+  idleSig = sig;
+  strip.style.transition = 'none';
+  strip.textContent = '';
+  $('roulette').classList.remove('done');
+  $('roEmpty').classList.toggle('hide', entries.length > 0);
+  if (!entries.length) return;
+  const need = Math.min(40, Math.max(15, entries.length));
+  for (let i = 0; i < need; i++) { const e = entries[i % entries.length]; strip.appendChild(makeCard(e.name, e.sub)); }
+  strip.style.transform = `translateX(${centerOn(strip.children[Math.floor(need / 2)])}px)`;
+}
+
+function showReveal(name, prize, withLabel) {
+  const r = $('reveal');
+  r.classList.remove('show');
+  void r.offsetWidth;
+  $('revName').textContent = name;
+  $('revPrize').textContent = prize ? '🎁 ' + prize : '';
+  r.classList.toggle('nolabel', !withLabel);
+  r.classList.add('show');
+}
+
+function setBusy(busy) {
+  ['draw', 'reset', 'toggle'].forEach(id => { $(id).disabled = busy; });
+}
+
+function runRoulette(pool, winnerName) {
+  const strip = $('strip'), ro = $('roulette');
+  const wEntry = pool.find(e => e.name === winnerName) || { name: winnerName, sub: false };
+  const W = 48 + rnd(8), total = W + 9;
+
+  strip.style.transition = 'none';
+  strip.textContent = '';
+  ro.classList.remove('done');
+  $('roEmpty').classList.add('hide');
+
+  let prev = null, winCard = null;
+  for (let i = 0; i < total; i++) {
+    let e;
+    if (i === W) e = wEntry;
+    else {
+      e = pool[rnd(pool.length)];
+      if (pool.length > 1) { let g = 0; while (prev && e.name === prev.name && g++ < 10) e = pool[rnd(pool.length)]; }
+    }
+    const c = makeCard(e.name, e.sub);
+    strip.appendChild(c);
+    if (i === W) winCard = c;
+    prev = e;
+  }
+
+  const cards = strip.children, vw = ro.clientWidth;
+  const step = cards[1].offsetLeft - cards[0].offsetLeft;
+  strip.style.transform = `translateX(${centerOn(cards[3])}px)`;
+  void strip.offsetWidth;                                   // commit the start position
+
+  const jitter = (Math.random() - 0.5) * winCard.offsetWidth * 0.7;   // lands somewhere inside the card
+  const end = centerOn(winCard, jitter);
+  const DUR = 7000;
+  strip.style.transition = `transform ${DUR}ms cubic-bezier(.1,.62,.1,1)`;
+  strip.style.transform = `translateX(${end}px)`;
+
+  let lastIdx = -1, lastT = 0, done = false;
+  (function loop() {
+    if (done) return;
+    const tx = new DOMMatrixReadOnly(getComputedStyle(strip).transform).m41;
+    const idx = Math.floor((-tx + vw / 2) / step);
+    if (idx !== lastIdx) { lastIdx = idx; const n = performance.now(); if (n - lastT > 28) { playTick(); lastT = n; } }
+    requestAnimationFrame(loop);
+  })();
+
+  const finish = () => {
+    if (done) return; done = true;
+    winCard.classList.add('win');
+    ro.classList.add('done');
+    winEl = winCard; roState = 'result';
+    showReveal(winnerName, last && last.prize, true);
+    playWin(); confetti();
+    spinning = false; setBusy(false);
+    poll();
+  };
+  strip.addEventListener('transitionend', finish, { once: true });
+  setTimeout(finish, DUR + 600);
+}
+
+// ---- Render ----
+function render(s) {
+  $('cnt').textContent = s.entries.length;
+  $('prizeShow').textContent = s.prize || t('prizeDefault');
+  $('toggle').textContent = s.open ? t('close') : t('open');
+  $('entryTxt').textContent = s.open ? t('statusOpen')(s.kw) : t('statusClosed');
+  $('entryStatus').classList.toggle('on', s.open);
+
+  const l = $('list'); l.textContent = '';
+  if (!s.entries.length) { const e = document.createElement('span'); e.className = 'empty'; e.textContent = t('emptyP'); l.appendChild(e); }
+  s.entries.forEach(e => {
+    const c = document.createElement('span'); c.dir = 'auto'; c.textContent = e.name;
+    c.className = 'chip' + (e.sub ? ' sub' : '') + (s.winners.some(w => w.key === e.key) ? ' won' : '');
+    l.appendChild(c);
+  });
+
+  const w = $('wins'); w.textContent = '';
+  if (!s.winners.length) { const li = document.createElement('span'); li.className = 'empty'; li.textContent = t('emptyW'); w.appendChild(li); }
+  s.winners.forEach(x => {
+    const li = document.createElement('li'); li.dir = 'auto';
+    li.textContent = x.name + (x.prize ? ' — ' + x.prize : '');
+    w.appendChild(li);
+  });
+
+  if (roState === 'idle') renderIdle(s.entries.filter(e => !s.winners.some(x => x.key === e.key)));
+  if (!editing) { $('prize').value = s.prize; $('kw').value = s.kw; $('subOnly').checked = s.subOnly; $('excl').checked = s.excl; }
+}
+
+async function poll() {
+  try {
+    const s = await (await fetch('/api/state')).json();
+    $('loginView').classList.toggle('hide', s.logged);
+    $('app').classList.toggle('hide', !s.logged);
+    if (s.logged) { $('who').textContent = s.name; last = s; if (!spinning) render(s); }
+  } catch (e) {}
+}
+setInterval(poll, 1500);
+
+// ---- Settings ----
+const saveSettings = () => post('/api/settings', { prize: $('prize').value, kw: $('kw').value, subOnly: $('subOnly').checked, excl: $('excl').checked });
+['prize', 'kw', 'subOnly', 'excl'].forEach(id => {
+  $(id).addEventListener('focus', () => editing = true);
+  $(id).addEventListener('blur', () => editing = false);
+  $(id).addEventListener('input', saveSettings);
+  $(id).addEventListener('change', saveSettings);
+});
+
+// ---- Buttons ----
+$('toggle').onclick = async () => { if (!last) return; await post('/api/open', { open: !last.open }); poll(); };
+$('reset').onclick = async () => {
+  if (confirm(t('confirmReset'))) {
+    await post('/api/reset');
+    roState = 'idle'; idleSig = ''; winEl = null;
+    $('reveal').classList.remove('show');
+    poll();
+  }
+};
+$('addManual').onclick = async () => {
+  const v = $('manual').value.trim();
+  if (v) { await post('/api/manual', { name: v }); $('manual').value = ''; poll(); }
+};
+$('manual').addEventListener('keydown', e => { if (e.key === 'Enter') $('addManual').click(); });
+
+$('draw').onclick = async () => {
+  if (spinning || !last) return;
+  const pool = last.entries.filter(e => !last.winners.some(w => w.key === e.key));
+  if (!pool.length) { showReveal(t('noPool'), '', false); return; }
+  audio();
+  spinning = true; roState = 'spinning'; setBusy(true);
+  $('reveal').classList.remove('show');
+  let res;
+  try { res = await post('/api/draw'); } catch (e) { res = { winner: null }; }
+  if (!res.winner) {
+    spinning = false; roState = 'idle'; idleSig = ''; setBusy(false);
+    showReveal(t('noPool'), '', false); poll();
+    return;
+  }
+  runRoulette(pool, res.winner);
+};
+
+// ---- Confetti ----
+const cv = $('fx'), cx = cv.getContext('2d');
+const fit = () => { cv.width = innerWidth; cv.height = innerHeight; };
+fit();
+addEventListener('resize', () => {
+  fit();
+  if (roState === 'idle') { idleSig = ''; if (last) render(last); }
+  else if (roState === 'result' && winEl) { const s = $('strip'); s.style.transition = 'none'; s.style.transform = `translateX(${centerOn(winEl)}px)`; }
+});
+function confetti() {
+  const cols = ['#4d6dff', '#8b6cff', '#a86cff', '#c56cf0', '#e4d9ff', '#ffffff'];
+  const ps = Array.from({ length: 150 }, () => ({
+    x: cv.width / 2, y: cv.height * 0.4, vx: (Math.random() - 0.5) * 16, vy: -Math.random() * 14 - 4,
+    s: Math.random() * 7 + 4, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4, c: cols[rnd(cols.length)], life: 1
+  }));
+  (function frame() {
+    cx.clearRect(0, 0, cv.width, cv.height);
+    let alive = false;
+    ps.forEach(p => {
+      p.vy += 0.35; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life -= 0.006;
+      if (p.life <= 0 || p.y > cv.height + 20) return;
+      alive = true; cx.save(); cx.globalAlpha = Math.max(p.life, 0); cx.translate(p.x, p.y); cx.rotate(p.r);
+      cx.fillStyle = p.c; cx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.6); cx.restore();
+    });
+    if (alive) requestAnimationFrame(frame); else cx.clearRect(0, 0, cv.width, cv.height);
+  })();
+}
+
+// ---- Init ----
+applyLang(lang, false);
+window.addEventListener('DOMContentLoaded', () => applyLang(lang, false));
+window.addEventListener('load', () => applyLang(lang, false));
+$('lang-toggle').addEventListener('click', () => applyLang(lang === 'ar' ? 'en' : 'ar', true));
+poll();
+</script>
+
+<script src="nav.js" data-site="giveaway" data-active="giveaway"></script>
+<!-- xtools-footer -->
+<style>
+  .xt-footer{text-align:center;padding:36px 16px 26px;margin-top:20px;border-top:1px solid rgba(139,108,255,.18);font-family:'Cairo',sans-serif;color:#9a9ab5;font-size:14px}
+  .xt-by{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+  .xt-by .xt-name{color:#fff;font-weight:800;font-size:16px}
+  .xt-link{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:999px;border:1px solid rgba(168,108,255,.5);background:linear-gradient(135deg,rgba(77,109,255,.18),rgba(197,108,240,.18));color:#c9b8ff;font-weight:700;font-size:13px;text-decoration:none;direction:ltr;transition:.2s}
+  .xt-link:hover{background:linear-gradient(135deg,#4d6dff,#c56cf0);color:#fff;transform:translateY(-1px)}
+  .xt-copy{margin-top:12px;font-size:12px;color:#77779a}
+</style>
+<div class="xt-footer">
+  <div class="xt-by">
+    <span id="footer-text">طُوِّر بـ ❤️ من قِبَل</span>
+    <a class="xt-name" href="https://guns.lol/roy_5x" target="_blank" rel="noopener" style="text-decoration:none;color:#fff;font-weight:800;font-size:16px">Roy</a>
+    <a class="xt-link" href="https://guns.lol/roy_5x" target="_blank" rel="noopener">🔗 guns.lol/roy_5x</a>
+  </div>
+  <div class="xt-copy" id="xt-copy">© 2026 xTools — جميع الحقوق محفوظة</div>
+</div>
+<script>
+(function(){
+  var T={ar:{by:'طُوِّر بـ ❤️ من قِبَل',c:'© 2026 xTools — جميع الحقوق محفوظة'},en:{by:'Built with ❤️ by',c:'© 2026 xTools — All rights reserved'}};
+  function lang(){var l='';try{l=localStorage.getItem('site-lang')}catch(e){}if(l!=='ar'&&l!=='en')l=document.documentElement.lang;return l==='en'?'en':'ar'}
+  var last='';
+  function upd(){var l=lang();if(l===last&&document.getElementById('footer-text').textContent===T[l].by)return;last=l;document.querySelector('.xt-footer').dir=l==='en'?'ltr':'rtl';
+    document.getElementById('footer-text').textContent=T[l].by;document.getElementById('xt-copy').textContent=T[l].c}
+  upd();setInterval(upd,400);
+})();
+</script>
+</body>
+</html>
