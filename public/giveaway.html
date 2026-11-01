@@ -170,19 +170,7 @@
 
 <canvas id="fx"></canvas>
 
-<nav class="navbar">
-  <div class="navbar-inner">
-    <a class="nav-home" href="https://xtools.live/" data-i18n="navHome">🏠 الرئيسية</a>
-    <span class="nav-sep">|</span>
-    <a class="nav-link" href="https://xtools.live/slots.html" data-i18n="navSlots">🎰 سلوت عشوائي</a>
-    <a class="nav-link" href="https://xtools.live/multiplier.html" data-i18n="navMult">🚀 الاكس العشوائي</a>
-    <a class="nav-link" href="https://xtools.live/wheel.html" data-i18n="navWheel">🎡 دولاب الحظ</a>
-    <a class="nav-link" href="https://xtools.live/tournament.html" data-i18n="navTour">🏆 البطولة</a>
-    <a class="nav-link" href="https://xtools.live/battle.html" data-i18n="navBattle">⚔️ حرب السلوتات</a>
-    <a class="nav-link active" href="giveaway.html" data-i18n="navGive">🎁 سحب البث</a>
-    <button class="nav-lang" id="lang-toggle" type="button"><span class="globe">🌐</span><span id="lang-toggle-label">English</span></button>
-  </div>
-</nav>
+<button class="nav-lang" id="lang-toggle" type="button"><span class="globe">🌐</span><span id="lang-toggle-label">English</span></button>
 
 <div class="header">
   <div class="logo">🎁 xTools</div>
@@ -587,13 +575,39 @@ function confetti() {
 
 // ---- Init ----
 applyLang(lang, false);
+window.addEventListener('DOMContentLoaded', () => applyLang(lang, false));
+window.addEventListener('load', () => applyLang(lang, false));
 $('lang-toggle').addEventListener('click', () => applyLang(lang === 'ar' ? 'en' : 'ar', true));
 poll();
 </script>
 
-<div style="text-align:center; padding: 32px 16px 20px; color: #444; font-size: 13px; font-family: 'Cairo', sans-serif;">
-  <span id="footer-text">طُوِّر بـ ❤️ من قِبَل</span>
-  <a href="https://guns.lol/roy_5x" target="_blank" style="color: #8b6cff; font-weight: 700; text-decoration: none; margin: 0 4px;">Roy</a>
+<script src="nav.js" data-site="giveaway" data-active="giveaway"></script>
+<!-- xtools-footer -->
+<style>
+  .xt-footer{text-align:center;padding:36px 16px 26px;margin-top:20px;border-top:1px solid rgba(139,108,255,.18);font-family:'Cairo',sans-serif;color:#9a9ab5;font-size:14px}
+  .xt-by{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+  .xt-by .xt-name{color:#fff;font-weight:800;font-size:16px}
+  .xt-link{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:999px;border:1px solid rgba(168,108,255,.5);background:linear-gradient(135deg,rgba(77,109,255,.18),rgba(197,108,240,.18));color:#c9b8ff;font-weight:700;font-size:13px;text-decoration:none;direction:ltr;transition:.2s}
+  .xt-link:hover{background:linear-gradient(135deg,#4d6dff,#c56cf0);color:#fff;transform:translateY(-1px)}
+  .xt-copy{margin-top:12px;font-size:12px;color:#77779a}
+</style>
+<div class="xt-footer">
+  <div class="xt-by">
+    <span id="footer-text">طُوِّر بـ ❤️ من قِبَل</span>
+    <a class="xt-name" href="https://guns.lol/roy_5x" target="_blank" rel="noopener" style="text-decoration:none;color:#fff;font-weight:800;font-size:16px">Roy</a>
+    <a class="xt-link" href="https://guns.lol/roy_5x" target="_blank" rel="noopener">🔗 guns.lol/roy_5x</a>
+  </div>
+  <div class="xt-copy" id="xt-copy">© 2026 xTools — جميع الحقوق محفوظة</div>
 </div>
+<script>
+(function(){
+  var T={ar:{by:'طُوِّر بـ ❤️ من قِبَل',c:'© 2026 xTools — جميع الحقوق محفوظة'},en:{by:'Built with ❤️ by',c:'© 2026 xTools — All rights reserved'}};
+  function lang(){var l='';try{l=localStorage.getItem('site-lang')}catch(e){}if(l!=='ar'&&l!=='en')l=document.documentElement.lang;return l==='en'?'en':'ar'}
+  var last='';
+  function upd(){var l=lang();if(l===last&&document.getElementById('footer-text').textContent===T[l].by)return;last=l;document.querySelector('.xt-footer').dir=l==='en'?'ltr':'rtl';
+    document.getElementById('footer-text').textContent=T[l].by;document.getElementById('xt-copy').textContent=T[l].c}
+  upd();setInterval(upd,400);
+})();
+</script>
 </body>
 </html>
