@@ -82,7 +82,11 @@
   function mount() {
     document.body.appendChild(side); document.body.appendChild(back); document.body.appendChild(burger);
     layout();
-    setInterval(layout, 300);
+    var stuck = 0;
+    setInterval(function () {
+      layout();
+      if (document.body.classList.contains('lang-fade')) { stuck++; if (stuck > 3) { document.body.classList.remove('lang-fade'); stuck = 0; } } else { stuck = 0; }
+    }, 300);
     window.addEventListener('resize', layout);
   }
   if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
