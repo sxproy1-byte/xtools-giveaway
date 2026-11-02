@@ -4,7 +4,7 @@
   var SITE = (script && script.getAttribute('data-site')) || 'main';
   var ACTIVE = (script && script.getAttribute('data-active')) || '';
   var MAIN = 'https:' + '//xtools.live/';
-  var GIVE = 'https:' + '//giveaway.xtools.live/giveaway.html';
+  var GIVE = 'https:' + '//xtools-giveaway.onrender.com/giveaway.html';
   var ITEMS = [
     ['index',      '🏠', 'الرئيسية',        'Home'],
     ['slots',      '🎰', 'سلوت عشوائي',     'Random Slot'],
