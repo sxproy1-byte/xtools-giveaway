@@ -8,7 +8,7 @@ const sessions = new Map();   // sid -> { userId, name }
 const pending = new Map();    // state -> code_verifier
 const rooms = new Map();      // userId -> حالة السحب
 const b64u = b => b.toString('base64url');
-const room = id => { if (!rooms.has(id)) rooms.set(id, { open: false, kw: '!join', subOnly: false, excl: true, prize: '', entries: new Map(), winners: [] }); return rooms.get(id); };
+const room = id => { if (!rooms.has(id)) rooms.set(id, { open: false, kw: '!join', subOnly: false, excl: true, prize: '', entries: new Map(), winners: [], chat: [], cid: 0 }); return rooms.get(id); };
 const cookie = req => Object.fromEntries((req.headers.cookie || '').split(';').map(c => c.trim().split('=')).filter(p => p[0]));
 const readRaw = req => new Promise(r => { const c = []; req.on('data', d => c.push(d)); req.on('end', () => r(Buffer.concat(c).toString())); });
 const send = (res, code, obj) => { res.writeHead(code, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(obj)); };
@@ -20,7 +20,7 @@ const MONTH = 30 * 24 * 3600 * 1000;
 try {
   const d = JSON.parse(fs.readFileSync(DATA, 'utf8'));
   (d.sessions || []).forEach(([k, v]) => sessions.set(k, v));
-  (d.rooms || []).forEach(([k, v]) => rooms.set(k, { ...v, entries: new Map(v.entries) }));
+  (d.rooms || []).forEach(([k, v]) => rooms.set(k, { ...v, entries: new Map(v.entries), chat: [], cid: 0 }));
   console.log('تم تحميل', sessions.size, 'جلسة و', rooms.size, 'غرفة');
 } catch (e) { /* أول تشغيل */ }
 let saveTimer = null;
@@ -28,7 +28,7 @@ function save() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     try {
-      const out = { sessions: [...sessions], rooms: [...rooms].map(([k, r]) => [k, { ...r, entries: [...r.entries] }]) };
+      const out = { sessions: [...sessions], rooms: [...rooms].map(([k, r]) => [k, { ...r, chat: [], entries: [...r.entries] }]) };
       fs.writeFileSync(DATA + '.tmp', JSON.stringify(out)); fs.renameSync(DATA + '.tmp', DATA);
     } catch (e) { console.error('save error', e.message); }
   }, 500);
@@ -50,11 +50,18 @@ async function verified(req, raw) {
 
 function onChat(ev) {
   const r = rooms.get(ev.broadcaster && ev.broadcaster.user_id);
-  if (!r || !r.open) return;
+  if (!r) return;
+  try {
+    const idn = (ev.sender && ev.sender.identity) || {};
+    const text = String(ev.content || '').replace(/\[emote:\d+:([^\]]+)\]/g, '$1').slice(0, 300);
+    r.chat.push({ id: ++r.cid, name: String(ev.sender.username || '').slice(0, 40), color: /^#[0-9a-fA-F]{3,8}$/.test(idn.username_color || '') ? idn.username_color : '', text });
+    if (r.chat.length > 100) r.chat.splice(0, r.chat.length - 100);
+  } catch (e) { /* ignore malformed message */ }
+  if (!r.open) return;
   const first = String(ev.content || '').trim().split(/\s+/)[0].toLowerCase();
   if (!first || first !== r.kw.toLowerCase()) return;
   const badges = ((ev.sender.identity || {}).badges || []).map(b => b.type);
-  const sub = badges.some(t => ['subscriber', 'sub_gifter', 'og', 'founder', 'moderator', 'broadcaster', 'vip'].includes(t));
+  const sub = badges.some(t => ['subscriber'].includes(t));
   if (r.subOnly && !sub) return;
   add(r, ev.sender.username, sub);
 }
@@ -132,7 +139,7 @@ const server = http.createServer(async (req, res) => {
     if (p.startsWith('/api/')) {
       if (!sess) return send(res, 200, { logged: false });
       const r = room(sess.userId);
-      if (p === '/api/state') return send(res, 200, { logged: true, name: sess.name, open: r.open, kw: r.kw, subOnly: r.subOnly, excl: r.excl, prize: r.prize, entries: [...r.entries.values()], winners: r.winners });
+      if (p === '/api/state') return send(res, 200, { logged: true, name: sess.name, open: r.open, kw: r.kw, subOnly: r.subOnly, excl: r.excl, prize: r.prize, entries: [...r.entries.values()], winners: r.winners, chat: r.chat.slice(-60) });
       const b = JSON.parse((await readRaw(req)) || '{}');
       if (p === '/api/settings') { r.kw = String(b.kw || '!join').slice(0, 30); r.subOnly = !!b.subOnly; r.excl = !!b.excl; r.prize = String(b.prize || '').slice(0, 80); }
       else if (p === '/api/open') r.open = !!b.open;
